@@ -17,9 +17,8 @@ class ViewController: UIViewController, MKMapViewDelegate, NSFetchedResultsContr
     @IBOutlet weak var globalMap: MKMapView!
     
     var longPress = UILongPressGestureRecognizer()
-    var currentPin: TemporaryPin?
+    var newPin: Pin?
     var annotationList = [Pin]()
-    var tempPinsList = [TemporaryPin]()
     
     lazy var fetchedResultsController: NSFetchedResultsController = {
         let fetchRequest = NSFetchRequest(entityName: "Pin")
@@ -42,13 +41,7 @@ class ViewController: UIViewController, MKMapViewDelegate, NSFetchedResultsContr
         do {
             try fetchedResultsController.performFetch()
             annotationList = fetchedResultsController.fetchedObjects as! [Pin]
-            currentPin = TemporaryPin()
-            for point in annotationList {
-                let newPin = TemporaryPin()
-                newPin.setCoordinate(CLLocationCoordinate2D(latitude: point.lat, longitude: point.lon))
-                tempPinsList.append(newPin)
-            }
-            globalMap.addAnnotations(tempPinsList)
+            globalMap.addAnnotations(annotationList)
         } catch {
             print(error)
         }
@@ -62,13 +55,10 @@ class ViewController: UIViewController, MKMapViewDelegate, NSFetchedResultsContr
         default: break
         }
     }
-    /*
+    /*       FOR PURPLE PINS:
     func mapView(mapView: MKMapView, viewForAnnotation annotation: MKAnnotation) -> MKAnnotationView? {
-        
         let reuseId = "pin"
-        
         var pinView = mapView.dequeueReusableAnnotationViewWithIdentifier(reuseId) as? MKPinAnnotationView
-        
         if pinView == nil {
             pinView = MKPinAnnotationView(annotation: annotation, reuseIdentifier: reuseId)
             pinView!.pinTintColor = UIColor.purpleColor()
@@ -81,23 +71,18 @@ class ViewController: UIViewController, MKMapViewDelegate, NSFetchedResultsContr
     */
     func dropPin(atPoint: CGPoint) {
         let geoPoint = globalMap.convertPoint(atPoint, toCoordinateFromView: globalMap)
-        currentPin = TemporaryPin()
-        currentPin!.setCoordinate(geoPoint)
-        globalMap.addAnnotation(currentPin!)
+        newPin = Pin(lat: geoPoint.latitude, lon: geoPoint.longitude, context: sharedContext)
+        globalMap.addAnnotation(newPin!)
     }
     
     func updatePinLoc(toPoint: CGPoint) {
         let geoPoint = globalMap.convertPoint(toPoint, toCoordinateFromView: globalMap)
-        currentPin!.setCoordinate(geoPoint)
+        newPin!.setCoordinate(geoPoint)
     }
 
     func storePin() {
-        
-        let newPin = Pin(lat: Double(currentPin!.coordinate.latitude), lon: Double(currentPin!.coordinate.longitude), context: sharedContext)
-        globalMap.removeAnnotation(currentPin!)
-        globalMap.addAnnotation(newPin)
         CoreDataStackManager.sharedInstance().saveContext()
-        FlickrClient.sharedInstance.getFlickrPicsWithLatLon(newPin.lat, longitude: newPin.lon)
+        FlickrClient.sharedInstance.getFlickrPicsWithLatLon(newPin!.lat, longitude: newPin!.lon)
     }
     
         

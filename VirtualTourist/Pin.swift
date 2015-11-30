@@ -15,7 +15,13 @@ class Pin: NSManagedObject, MKAnnotation {
     @NSManaged var pics: [Photo]
     @NSManaged var lat: Double
     @NSManaged var lon: Double
-    var coordinate = CLLocationCoordinate2D()
+    
+    // MKMapView will not add MKAnnotations from fetched CoreData Pins without a coordinate getter:
+    var coordinate: CLLocationCoordinate2D {
+        get {
+            return CLLocationCoordinate2D(latitude: lat, longitude: lon)
+        }
+    }
     
     override init(entity: NSEntityDescription, insertIntoManagedObjectContext context: NSManagedObjectContext?) {
         super.init(entity: entity, insertIntoManagedObjectContext: context)
@@ -26,9 +32,15 @@ class Pin: NSManagedObject, MKAnnotation {
         super.init(entity: entity!, insertIntoManagedObjectContext: context)
         self.lat = lat
         self.lon = lon
-        coordinate = CLLocationCoordinate2D(latitude: lat, longitude: lon)
     }
     
+    func setCoordinate(toPoint: CLLocationCoordinate2D) {
+        //To comply with KVO in order to drag a pin before dropping it
+        willChangeValueForKey("coordinate")
+        self.lat = toPoint.latitude
+        self.lon = toPoint.longitude
+        didChangeValueForKey("coordinate")
+    }
     
     
 }
