@@ -82,7 +82,16 @@ class ViewController: UIViewController, MKMapViewDelegate, NSFetchedResultsContr
 
     func storePin() {
         CoreDataStackManager.sharedInstance().saveContext()
-        FlickrClient.sharedInstance.getFlickrPicsWithLatLon(newPin!.lat, longitude: newPin!.lon)
+        FlickrClient.sharedInstance.getFlickrPicsFromPin(newPin!)
+    }
+    
+    func mapView(mapView: MKMapView, didSelectAnnotationView view: MKAnnotationView) {
+        let spot = view.annotation as! Pin
+        let nextVC = storyboard!.instantiateViewControllerWithIdentifier("PhotoAlbum") as! PhotoCollectionVC
+        nextVC.site = spot
+        // set the mapview above the nextVC controller view now too
+        navigationController!.pushViewController(nextVC, animated: true)
+        
     }
     
         
