@@ -89,6 +89,7 @@ class ViewController: UIViewController, MKMapViewDelegate, NSFetchedResultsContr
         let spot = view.annotation as! Pin
         let nextVC = storyboard!.instantiateViewControllerWithIdentifier("PhotoAlbum") as! PhotoCollectionVC
         nextVC.site = spot
+        mapView.deselectAnnotation(spot, animated: false)
         // set the mapview above the nextVC controller view now too
         navigationController!.pushViewController(nextVC, animated: true)
         

@@ -13,6 +13,7 @@ import CoreData
 class PhotoCollectionVC: UIViewController, UICollectionViewDataSource, UICollectionViewDelegate, NSFetchedResultsControllerDelegate {
     
     @IBOutlet weak var collectionView: UICollectionView!
+    @IBOutlet weak var mapDisplay: MKMapView!
     
     let sharedContext = CoreDataStackManager.sharedInstance().managedObjectContext
 
@@ -30,6 +31,9 @@ class PhotoCollectionVC: UIViewController, UICollectionViewDataSource, UICollect
     override func viewDidLoad() {
         super.viewDidLoad()
         print("site's lat/ lon is \(site.lat), \(site.lon)")
+        
+        mapDisplay.setCenterCoordinate(site.coordinate, animated: true)
+        mapDisplay.addAnnotation(site)
         fetchedResultsController.delegate = self
         collectionView.delegate = self
         collectionView.dataSource = self
@@ -39,6 +43,9 @@ class PhotoCollectionVC: UIViewController, UICollectionViewDataSource, UICollect
             print(error)
         }
         
+    }
+    override func viewWillDisappear(animated: Bool) {
+        mapDisplay.removeAnnotation(site)
     }
     
     lazy var fetchedResultsController: NSFetchedResultsController = {
@@ -55,7 +62,6 @@ class PhotoCollectionVC: UIViewController, UICollectionViewDataSource, UICollect
     
     override func viewDidLayoutSubviews() {
         super.viewDidLayoutSubviews()
-        
         // Lay out the collection view so that cells take up 1/2 of the width,
         // with no space in between.
         let layout : UICollectionViewFlowLayout = UICollectionViewFlowLayout()

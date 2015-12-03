@@ -24,7 +24,7 @@ class FlickrClient: NSObject {
         let maxLon = min(fromPin.lon + Constants.BOUNDING_BOX_HALF_WIDTH, 180.0)
         
         let session = NSURLSession.sharedSession()
-        let bbox = "&bbox=\(minLat)%2C\(minLon)%2C\(maxLat)%2C\(maxLon)"
+        let bbox = "&bbox=\(minLon)%2C\(minLat)%2C\(maxLon)%2C\(maxLat)"
         print(bbox)
         let urlString = baseGeoString + bbox
         let url = NSURL(string: urlString)!

@@ -4,6 +4,7 @@
         <deployment identifier="iOS"/>
         <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="9049"/>
         <capability name="Constraints to layout margins" minToolsVersion="6.0"/>
+        <capability name="Constraints with non-1.0 multipliers" minToolsVersion="5.1"/>
     </dependencies>
     <scenes>
         <!--Virtual Tourist-->
@@ -53,14 +54,11 @@
                         <rect key="frame" x="0.0" y="0.0" width="600" height="600"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
-                            <mapView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" mapType="hybrid" zoomEnabled="NO" scrollEnabled="NO" rotateEnabled="NO" pitchEnabled="NO" translatesAutoresizingMaskIntoConstraints="NO" id="XnL-wT-yKy">
-                                <rect key="frame" x="0.0" y="0.0" width="600" height="100"/>
-                                <constraints>
-                                    <constraint firstAttribute="height" constant="100" id="iWf-1f-UJq"/>
-                                </constraints>
+                            <mapView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" mapType="standard" zoomEnabled="NO" scrollEnabled="NO" rotateEnabled="NO" pitchEnabled="NO" translatesAutoresizingMaskIntoConstraints="NO" id="XnL-wT-yKy">
+                                <rect key="frame" x="0.0" y="0.0" width="600" height="150"/>
                             </mapView>
                             <collectionView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" dataMode="prototypes" translatesAutoresizingMaskIntoConstraints="NO" id="QNZ-Fk-ZyS">
-                                <rect key="frame" x="0.0" y="100" width="600" height="500"/>
+                                <rect key="frame" x="0.0" y="150" width="600" height="450"/>
                                 <collectionViewFlowLayout key="collectionViewLayout" minimumLineSpacing="10" minimumInteritemSpacing="10" id="hXh-9u-Sk3">
                                     <size key="itemSize" width="120" height="120"/>
                                     <size key="headerReferenceSize" width="0.0" height="0.0"/>
@@ -75,12 +73,18 @@
                                             <rect key="frame" x="0.0" y="0.0" width="120" height="120"/>
                                             <autoresizingMask key="autoresizingMask"/>
                                             <subviews>
-                                                <imageView userInteractionEnabled="NO" contentMode="scaleAspectFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="gSX-oF-crt">
-                                                    <rect key="frame" x="0.0" y="0.0" width="120" height="120"/>
+                                                <imageView userInteractionEnabled="NO" contentMode="scaleAspectFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="gSX-oF-crt">
+                                                    <rect key="frame" x="8" y="1" width="104" height="118"/>
                                                 </imageView>
                                             </subviews>
                                             <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="calibratedWhite"/>
                                         </view>
+                                        <constraints>
+                                            <constraint firstItem="gSX-oF-crt" firstAttribute="leading" secondItem="UhX-6F-fQb" secondAttribute="leadingMargin" id="6YH-TV-ufc"/>
+                                            <constraint firstItem="gSX-oF-crt" firstAttribute="top" secondItem="UhX-6F-fQb" secondAttribute="topMargin" constant="-7" id="bgl-eN-XY5"/>
+                                            <constraint firstAttribute="bottomMargin" secondItem="gSX-oF-crt" secondAttribute="bottom" constant="-7" id="dkF-So-Fka"/>
+                                            <constraint firstAttribute="trailingMargin" secondItem="gSX-oF-crt" secondAttribute="trailing" id="kRl-bX-Zsx"/>
+                                        </constraints>
                                         <connections>
                                             <outlet property="pic" destination="gSX-oF-crt" id="QA8-BB-QnU"/>
                                         </connections>
@@ -97,10 +101,12 @@
                             <constraint firstItem="XnL-wT-yKy" firstAttribute="leading" secondItem="BG1-Xw-P6M" secondAttribute="leadingMargin" constant="-20" id="L2U-So-94s"/>
                             <constraint firstAttribute="trailingMargin" secondItem="XnL-wT-yKy" secondAttribute="trailing" constant="-20" id="Nl3-ay-d9p"/>
                             <constraint firstItem="XnL-wT-yKy" firstAttribute="top" secondItem="BG1-Xw-P6M" secondAttribute="topMargin" id="d2k-7x-G9W"/>
+                            <constraint firstItem="udh-0l-bGR" firstAttribute="top" secondItem="XnL-wT-yKy" secondAttribute="bottom" multiplier="4" id="roh-Zt-XGl"/>
                         </constraints>
                     </view>
                     <connections>
                         <outlet property="collectionView" destination="QNZ-Fk-ZyS" id="iAR-Qd-vWz"/>
+                        <outlet property="mapDisplay" destination="XnL-wT-yKy" id="hUu-GX-ayA"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="1HV-Pb-Qka" userLabel="First Responder" sceneMemberID="firstResponder"/>
