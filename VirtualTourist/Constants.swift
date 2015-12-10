@@ -17,6 +17,7 @@ struct Constants {
     static let SAFE_SEARCH = "1"
     static let DATA_FORMAT = "json"
     static let NO_JSON_CALLBACK = "1"
-    static let BOUNDING_BOX_HALF_WIDTH = 0.5
-    static let BOUNDING_BOX_HALF_HEIGHT = 0.5
+    static let BOUNDING_BOX_HALF_WIDTH = 0.1
+    static let BOUNDING_BOX_HALF_HEIGHT = 0.1
+    static let PHOTOS_PER_PAGE = "30"
 }

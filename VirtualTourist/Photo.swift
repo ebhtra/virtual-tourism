@@ -12,8 +12,8 @@ import UIKit
 
 class Photo: NSManagedObject {
     
-    @NSManaged var image: UIImage
     @NSManaged var site: Pin
+    @NSManaged var image: UIImage
     
     override init(entity: NSEntityDescription, insertIntoManagedObjectContext context: NSManagedObjectContext?) {
         super.init(entity: entity, insertIntoManagedObjectContext: context)
@@ -25,4 +25,5 @@ class Photo: NSManagedObject {
 
         self.image = image
     }
+    
 }

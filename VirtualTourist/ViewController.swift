@@ -16,9 +16,13 @@ class ViewController: UIViewController, MKMapViewDelegate, NSFetchedResultsContr
     
     @IBOutlet weak var globalMap: MKMapView!
     
+    @IBOutlet weak var deletePinLabel: UILabel!
+    
     var longPress = UILongPressGestureRecognizer()
     var newPin: Pin?
     var annotationList = [Pin]()
+    var isEditingPins = false
+    var editButton = UIBarButtonItem()
     
     lazy var fetchedResultsController: NSFetchedResultsController = {
         let fetchRequest = NSFetchRequest(entityName: "Pin")
@@ -37,6 +41,10 @@ class ViewController: UIViewController, MKMapViewDelegate, NSFetchedResultsContr
         longPress.minimumPressDuration = 0.25
         longPress.addTarget(self, action: Selector("placePin:"))
         view.addGestureRecognizer(longPress)
+        editButton = UIBarButtonItem(title: "Edit", style: .Plain, target: self, action: Selector("selectEditMode:"))
+        navigationItem.rightBarButtonItem = editButton
+        deletePinLabel.hidden = true
+        
 
         do {
             try fetchedResultsController.performFetch()
@@ -87,16 +95,31 @@ class ViewController: UIViewController, MKMapViewDelegate, NSFetchedResultsContr
     
     func mapView(mapView: MKMapView, didSelectAnnotationView view: MKAnnotationView) {
         let spot = view.annotation as! Pin
-        let nextVC = storyboard!.instantiateViewControllerWithIdentifier("PhotoAlbum") as! PhotoCollectionVC
-        nextVC.site = spot
-        mapView.deselectAnnotation(spot, animated: false)
-        // set the mapview above the nextVC controller view now too
-        navigationController!.pushViewController(nextVC, animated: true)
+        if !isEditingPins {
+            let nextVC = storyboard!.instantiateViewControllerWithIdentifier("PhotoAlbum") as! PhotoCollectionVC
+            nextVC.site = spot
+            mapView.deselectAnnotation(spot, animated: false)
+            navigationController!.pushViewController(nextVC, animated: true)
+        } else {
+            globalMap.removeAnnotation(spot)
+            sharedContext.deleteObject(spot)
+            CoreDataStackManager.sharedInstance().saveContext()
+        }
         
     }
+    func selectEditMode(button: UIBarButtonItem) {
+        if isEditingPins {
+            editButton.title = "Edit"
+            isEditingPins = false
+            self.view.frame.origin.y = 0
+            deletePinLabel.hidden = true
+        } else {
+            editButton.title = "Done"
+            isEditingPins = true
+            self.view.frame.origin.y -= deletePinLabel.frame.height
+            deletePinLabel.hidden = false
+        }
+    }
     
-        
-
-
 }
 
