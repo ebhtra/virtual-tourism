@@ -21,11 +21,10 @@ class PhotoCollectionVC: UIViewController, UICollectionViewDataSource, UICollect
 
     var site: Pin!
     
-    // The selected indexes array keeps all of the indexPaths for cells that are "selected". The array is
-    // used inside cellForItemAtIndexPath to lower the alpha of selected cells.
+    // A staging area for indices of Photos before they are deleted
     var selectedIndexes = [NSIndexPath]()
     
-    // Keep the changes. We will keep track of insertions, deletions, and updates.
+    // A staging area for indices of Photos before the batch update
     var insertedIndexPaths: [NSIndexPath]!
     var deletedIndexPaths: [NSIndexPath]!
     var updatedIndexPaths: [NSIndexPath]!
@@ -34,27 +33,30 @@ class PhotoCollectionVC: UIViewController, UICollectionViewDataSource, UICollect
         super.viewDidLoad()
         
         print("the pin has \(site.pics.count) photos")
+        // Deal with the zero-pic situation
         if site.pics.isEmpty {
             noPicsLabel.hidden = false
+            bottomButton.enabled = false
         }
-        
+        // Place the current pin on the small map above the Photo collection
         mapDisplay.addAnnotation(site)
-        mapDisplay.setRegion(MKCoordinateRegion(center: site.coordinate, span: MKCoordinateSpanMake(1, 1)), animated: true)
+        mapDisplay.setRegion(MKCoordinateRegion(center: site.coordinate, span: MKCoordinateSpanMake(0.5, 0.5)), animated: true)
         
         fetchedResultsController.delegate = self
         collectionView.delegate = self
         collectionView.dataSource = self
         
-        do {
+        do {  // get the currently persisted Photos for this Pin
             try fetchedResultsController.performFetch()
         } catch {
             print(error)
         }
     }
-    
+    // This controller will control Photos in this managed Context whose related Pin is the current one
     lazy var fetchedResultsController: NSFetchedResultsController = {
         let fetchRequest = NSFetchRequest(entityName: "Photo")
         fetchRequest.sortDescriptors = []
+        //get the photos whose related Pin matches this one
         fetchRequest.predicate = NSPredicate(format: "site == %@", self.site)
         
         let fetchedResultsController = NSFetchedResultsController(fetchRequest: fetchRequest,
@@ -66,33 +68,34 @@ class PhotoCollectionVC: UIViewController, UICollectionViewDataSource, UICollect
     
     override func viewDidLayoutSubviews() {
         super.viewDidLayoutSubviews()
-        // Lay out the collection view so that cells take up 1/2 of the width,
-        // with no space in between.
+        
         let layout : UICollectionViewFlowLayout = UICollectionViewFlowLayout()
         layout.sectionInset = UIEdgeInsets(top: 0, left: 0, bottom: 0, right: 0)
         layout.minimumLineSpacing = 0
         layout.minimumInteritemSpacing = 0
-        
-        let width = floor(self.collectionView.frame.size.width/2)
+        // Lay out the collection view so that cells are squares 1/2 the width of the View
+        let width = collectionView.frame.size.width/2
         layout.itemSize = CGSize(width: width, height: width)
         collectionView.collectionViewLayout = layout
     }
 
     @IBAction func bottomButtonClicked(sender: AnyObject) {
+        //either add photos to the for-deletion list or replace them all with a new call to flickr
         if selectedIndexes.isEmpty {
             replaceAllPhotos()
         } else {
             deleteSelectedPhotos()
         }
     }
+    
+    // MARK: - UICollectionView DataSource and Delegate methods
+    
     func numberOfSectionsInCollectionView(collectionView: UICollectionView) -> Int {
         return fetchedResultsController.sections?.count ?? 0
     }
     
     func collectionView(collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         let sectionInfo = self.fetchedResultsController.sections![section]
-        
-        print("number Of Cells: \(sectionInfo.numberOfObjects)")
         return sectionInfo.numberOfObjects
     }
     
@@ -110,7 +113,8 @@ class PhotoCollectionVC: UIViewController, UICollectionViewDataSource, UICollect
         
         let cell = collectionView.cellForItemAtIndexPath(indexPath) as! PhotoCell
         
-        // When a cell is tapped this method will toggle its presence in the selectedIndexes array...
+        // When a cell is tapped this method will toggle its presence in the selectedIndexes array.
+        // Also it will toggle its alpha accordingly.
         if let index = selectedIndexes.indexOf(indexPath) {
             selectedIndexes.removeAtIndex(index)
             cell.alpha = 1.0
@@ -132,6 +136,8 @@ class PhotoCollectionVC: UIViewController, UICollectionViewDataSource, UICollect
     
     // MARK: - Fetched Results Controller Delegate
     
+    /* Most of this is taken from the "ColorCollection" app in the Udacity ios-persistence course */
+    
     // Whenever changes are made to Core Data the following three methods are invoked. This first method is used to create
     // three fresh arrays to record the index paths that will be changed.
     func controllerWillChangeContent(controller: NSFetchedResultsController) {
@@ -139,8 +145,7 @@ class PhotoCollectionVC: UIViewController, UICollectionViewDataSource, UICollect
         insertedIndexPaths = [NSIndexPath]()
         deletedIndexPaths = [NSIndexPath]()
         updatedIndexPaths = [NSIndexPath]()
-        
-        print("in controllerWillChangeContent")
+
     }
     
     // The second method may be called multiple times, once for each Photo object that is added, deleted, or changed.
@@ -150,45 +155,25 @@ class PhotoCollectionVC: UIViewController, UICollectionViewDataSource, UICollect
         switch type{
             
         case .Insert:
-            print("Insert an item")
-            // Here we are noting that a new Photo instance has been added to Core Data. We remember its index path
-            // so that we can add a cell in "controllerDidChangeContent". Note that the "newIndexPath" parameter has
-            // the index path that we want in this case
             insertedIndexPaths.append(newIndexPath!)
             break
         case .Delete:
-            print("Delete an item")
-            // Here we are noting that a Photo instance has been deleted from Core Data. We keep remember its index path
-            // so that we can remove the corresponding cell in "controllerDidChangeContent". The "indexPath" parameter has
-            // value that we want in this case.
             deletedIndexPaths.append(indexPath!)
             break
         case .Update:
-            print("Update an item.")
-            // We don't expect Photo instances to change after they are created. But Core Data would
-            // notify us of changes if any occured. This can be useful if you want to respond to changes
-            // that come about after data is downloaded. For example, when an images is downloaded from
-            // Flickr in the Virtual Tourist app
             updatedIndexPaths.append(indexPath!)
             break
-        case .Move:
-            print("Move an item. We don't expect to see this in this app.")
-            break
+        default: break
         }
     }
     
-    // This method is invoked after all of the changed in the current batch have been collected
-    // into the three index path arrays (insert, delete, and upate). We now need to loop through the
+    // This method is invoked after all of the changes in the current batch have been collected
+    // into the three index path arrays (insert, delete, and update). We now need to loop through the
     // arrays and perform the changes.
-    //
-    // The most interesting thing about the method is the collection view's "performBatchUpdates" method.
-    // Notice that all of the changes are performed inside a closure that is handed to the collection view.
     func controllerDidChangeContent(controller: NSFetchedResultsController) {
         
-        print("in controllerDidChangeContent. changes.count: \(insertedIndexPaths.count + deletedIndexPaths.count)")
-        
         collectionView.performBatchUpdates({() -> Void in
-            
+        
             for indexPath in self.insertedIndexPaths {
                 self.collectionView.insertItemsAtIndexPaths([indexPath])
             }
@@ -205,11 +190,10 @@ class PhotoCollectionVC: UIViewController, UICollectionViewDataSource, UICollect
     }
     
     func replaceAllPhotos() {
-        
+        //Delete all the currently displayed Photos and replace them with new ones from flickr
         for pic in fetchedResultsController.fetchedObjects as! [Photo] {
             sharedContext.deleteObject(pic)
         }
-        updateBottomButton()
         FlickrClient.sharedInstance.getFlickrPicsFromPin(site)
     }
     
@@ -225,7 +209,7 @@ class PhotoCollectionVC: UIViewController, UICollectionViewDataSource, UICollect
         }
         
         selectedIndexes = [NSIndexPath]()
-        
+        //toggle bottom button back to "replace all" state
         updateBottomButton()
     }
     

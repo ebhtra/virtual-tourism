@@ -68,11 +68,14 @@
                         <rect key="frame" x="0.0" y="0.0" width="600" height="600"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
-                            <mapView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" mapType="standard" scrollEnabled="NO" rotateEnabled="NO" pitchEnabled="NO" translatesAutoresizingMaskIntoConstraints="NO" id="XnL-wT-yKy">
-                                <rect key="frame" x="0.0" y="44" width="600" height="95"/>
+                            <mapView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleAspectFill" mapType="standard" rotateEnabled="NO" pitchEnabled="NO" translatesAutoresizingMaskIntoConstraints="NO" id="XnL-wT-yKy">
+                                <rect key="frame" x="0.0" y="30" width="600" height="109"/>
+                                <constraints>
+                                    <constraint firstAttribute="height" relation="greaterThanOrEqual" constant="80" id="4sa-lM-QQn"/>
+                                </constraints>
                             </mapView>
                             <collectionView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" dataMode="prototypes" translatesAutoresizingMaskIntoConstraints="NO" id="QNZ-Fk-ZyS">
-                                <rect key="frame" x="0.0" y="139" width="600" height="461"/>
+                                <rect key="frame" x="0.0" y="123" width="600" height="477"/>
                                 <collectionViewFlowLayout key="collectionViewLayout" minimumLineSpacing="10" minimumInteritemSpacing="10" id="hXh-9u-Sk3">
                                     <size key="itemSize" width="120" height="120"/>
                                     <size key="headerReferenceSize" width="0.0" height="0.0"/>
@@ -80,25 +83,25 @@
                                     <inset key="sectionInset" minX="0.0" minY="0.0" maxX="0.0" maxY="0.0"/>
                                 </collectionViewFlowLayout>
                                 <view key="backgroundView" contentMode="scaleToFill" id="lZB-ZN-apn">
-                                    <rect key="frame" x="0.0" y="0.0" width="600" height="461"/>
+                                    <rect key="frame" x="0.0" y="0.0" width="600" height="477"/>
                                     <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                     <subviews>
                                         <label hidden="YES" opaque="NO" userInteractionEnabled="NO" contentMode="center" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="There are no pictures to display.  Try a different location." textAlignment="center" lineBreakMode="tailTruncation" numberOfLines="4" baselineAdjustment="alignBaselines" minimumFontSize="12" translatesAutoresizingMaskIntoConstraints="NO" id="VWU-Dp-ybF">
                                             <rect key="frame" x="279" y="204" width="42" height="21"/>
                                             <color key="backgroundColor" red="0.64283511510000002" green="0.83480674340000005" blue="0.12189041940000001" alpha="1" colorSpace="calibratedRGB"/>
+                                            <constraints>
+                                                <constraint firstAttribute="height" constant="150" id="WIe-qr-0Zr"/>
+                                                <constraint firstAttribute="width" constant="180" id="gjl-T2-xd3"/>
+                                            </constraints>
                                             <fontDescription key="fontDescription" type="system" pointSize="20"/>
-                                            <color key="textColor" cocoaTouchSystemColor="darkTextColor"/>
+                                            <color key="textColor" red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="calibratedRGB"/>
                                             <nil key="highlightedColor"/>
                                         </label>
                                     </subviews>
                                     <color key="backgroundColor" white="0.0" alpha="1" colorSpace="calibratedWhite"/>
                                     <constraints>
-                                        <constraint firstAttribute="trailing" secondItem="VWU-Dp-ybF" secondAttribute="trailing" constant="30" id="JAI-hm-8mt"/>
-                                        <constraint firstItem="VWU-Dp-ybF" firstAttribute="top" secondItem="lZB-ZN-apn" secondAttribute="top" constant="30" id="NTD-HH-F9I"/>
-                                        <constraint firstItem="VWU-Dp-ybF" firstAttribute="leading" secondItem="lZB-ZN-apn" secondAttribute="leading" constant="30" id="QnU-5C-ule"/>
-                                        <constraint firstItem="VWU-Dp-ybF" firstAttribute="centerY" secondItem="lZB-ZN-apn" secondAttribute="centerY" id="SYd-mt-rcq"/>
-                                        <constraint firstItem="VWU-Dp-ybF" firstAttribute="centerX" secondItem="lZB-ZN-apn" secondAttribute="centerX" id="X9f-mc-x1g"/>
-                                        <constraint firstAttribute="bottom" secondItem="VWU-Dp-ybF" secondAttribute="bottom" constant="30" id="nAP-vK-60w"/>
+                                        <constraint firstItem="VWU-Dp-ybF" firstAttribute="centerX" secondItem="lZB-ZN-apn" secondAttribute="centerX" id="GaD-bT-hAF"/>
+                                        <constraint firstItem="VWU-Dp-ybF" firstAttribute="centerY" secondItem="lZB-ZN-apn" secondAttribute="centerY" id="bgy-fe-PE8"/>
                                     </constraints>
                                 </view>
                                 <cells>
@@ -145,16 +148,16 @@
                         </subviews>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                         <constraints>
-                            <constraint firstItem="QNZ-Fk-ZyS" firstAttribute="top" secondItem="XnL-wT-yKy" secondAttribute="bottom" id="45r-Ch-Sk2"/>
+                            <constraint firstItem="QNZ-Fk-ZyS" firstAttribute="top" secondItem="XnL-wT-yKy" secondAttribute="bottom" constant="-16" id="45r-Ch-Sk2"/>
                             <constraint firstAttribute="bottomMargin" secondItem="QNZ-Fk-ZyS" secondAttribute="bottom" id="5ER-dY-OMm"/>
                             <constraint firstAttribute="trailingMargin" secondItem="QNZ-Fk-ZyS" secondAttribute="trailing" constant="-20" id="IZJ-ts-0x8"/>
                             <constraint firstItem="QNZ-Fk-ZyS" firstAttribute="leading" secondItem="BG1-Xw-P6M" secondAttribute="leadingMargin" constant="-20" id="JNg-pM-YZF"/>
                             <constraint firstItem="XnL-wT-yKy" firstAttribute="leading" secondItem="BG1-Xw-P6M" secondAttribute="leadingMargin" constant="-20" id="L2U-So-94s"/>
                             <constraint firstAttribute="trailingMargin" secondItem="XnL-wT-yKy" secondAttribute="trailing" constant="-20" id="Nl3-ay-d9p"/>
-                            <constraint firstItem="XnL-wT-yKy" firstAttribute="top" secondItem="BG1-Xw-P6M" secondAttribute="topMargin" constant="44" id="Uxv-xb-yeb"/>
+                            <constraint firstItem="XnL-wT-yKy" firstAttribute="top" secondItem="BG1-Xw-P6M" secondAttribute="topMargin" constant="30" id="Uxv-xb-yeb"/>
                             <constraint firstItem="Oon-mV-FVv" firstAttribute="leading" secondItem="BG1-Xw-P6M" secondAttribute="leadingMargin" constant="-20" id="VHZ-sd-EUT"/>
                             <constraint firstAttribute="trailingMargin" secondItem="Oon-mV-FVv" secondAttribute="trailing" constant="-20" id="kJF-L2-ErF"/>
-                            <constraint firstItem="udh-0l-bGR" firstAttribute="top" secondItem="XnL-wT-yKy" secondAttribute="bottom" multiplier="4" id="roh-Zt-XGl"/>
+                            <constraint firstItem="udh-0l-bGR" firstAttribute="top" secondItem="XnL-wT-yKy" secondAttribute="bottom" multiplier="4" priority="750" id="roh-Zt-XGl"/>
                             <constraint firstItem="udh-0l-bGR" firstAttribute="top" secondItem="Oon-mV-FVv" secondAttribute="bottom" id="wmX-bI-yR7"/>
                         </constraints>
                     </view>

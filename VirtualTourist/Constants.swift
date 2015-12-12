@@ -13,11 +13,11 @@ struct Constants {
     static let BASE_URL = "https://api.flickr.com/services/rest/"
     static let METHOD_NAME = "flickr.photos.search"
     static let API_KEY = "2c5b25cd7c3813d59f8455da50110964"
-    static let EXTRAS = "url_m"
+    static let EXTRAS = "url_m"  //to get photo url's returned from flickr
     static let SAFE_SEARCH = "1"
     static let DATA_FORMAT = "json"
     static let NO_JSON_CALLBACK = "1"
-    static let BOUNDING_BOX_HALF_WIDTH = 0.1
+    static let BOUNDING_BOX_HALF_WIDTH = 0.1 //how big is the bbox for flickr search
     static let BOUNDING_BOX_HALF_HEIGHT = 0.1
-    static let PHOTOS_PER_PAGE = "30"
+    static let PHOTOS_PER_PAGE = "30" //how many pics per flickr search query
 }
