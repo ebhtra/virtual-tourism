@@ -192,10 +192,16 @@ class PhotoCollectionVC: UIViewController, UICollectionViewDataSource, UICollect
     
     func replaceAllPhotos() {
         //Delete all the currently displayed Photos and replace them with new ones from flickr
+        bottomButton.enabled = false
         for pic in fetchedResultsController.fetchedObjects as! [Photo] {
             sharedContext.deleteObject(pic)
         }
-        FlickrClient.sharedInstance.getFlickrPicsFromPin(site)
+        FlickrClient.sharedInstance.getFlickrPicsFromPin(site) {
+            //the completion handler re-enables the button that called this function
+            dispatch_async(dispatch_get_main_queue()){
+                self.bottomButton.enabled = true
+            }
+        }
     }
     
     func deleteSelectedPhotos() {

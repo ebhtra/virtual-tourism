@@ -104,7 +104,7 @@ class ViewController: UIViewController, MKMapViewDelegate, NSFetchedResultsContr
     func storePin() {
         //after touch up, store final Pin location, and initiate photo download
         CoreDataStackManager.sharedInstance().saveContext()
-        FlickrClient.sharedInstance.getFlickrPicsFromPin(newPin!)
+        FlickrClient.sharedInstance.getFlickrPicsFromPin(newPin!, completion: nil)
     }
     
     func mapView(mapView: MKMapView, didSelectAnnotationView view: MKAnnotationView) {

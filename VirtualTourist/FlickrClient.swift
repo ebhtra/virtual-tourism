@@ -22,7 +22,7 @@ class FlickrClient: NSObject {
     var nextPage = 0
     var numPages = 0
     
-    func getFlickrPicsFromPin(fromPin: Pin) {
+    func getFlickrPicsFromPin(fromPin: Pin, completion: (()->Void)?) {
         //cycle through available pages, avoid "page 0"
         nextPage++
         if nextPage > numPages {
@@ -56,7 +56,7 @@ class FlickrClient: NSObject {
                             //if nextPage turns out to be set too high from the previous Pin, reset nextPage to 0 and call this function again
                             if self.numPages > 0 && self.numPages < self.nextPage {
                                 self.nextPage = 0
-                                self.getFlickrPicsFromPin(fromPin)
+                                self.getFlickrPicsFromPin(fromPin, completion: completion)
                             }
                         }
                         
@@ -67,17 +67,20 @@ class FlickrClient: NSObject {
                         
                         if totalPhotosVal > 0 {
                             if let photosArray = photosDictionary["photo"] as? [[String: AnyObject]] {
+                                //create new Photo managed objects for each flickr photo returned
                                 let _ = photosArray.map() { (dict: [String : AnyObject]) -> Photo in
                                     let imageUrl = dict["url_m"] as! String
                                     let newImage = UIImage(data: NSData(contentsOfURL: NSURL(string: imageUrl)!)!)
-                                    //create new Photo managed objects for each flickr photo returned
                                     let newPhoto = Photo(image: newImage!, context: self.sharedContext)
                                     //link the Photo to current pin for inverse relationship
                                     newPhoto.site = fromPin
                                     
                                     return newPhoto
                                 }
+                                completion!()
+                                
                                 CoreDataStackManager.sharedInstance().saveContext()
+                                
                             }
                         } 
                     }
