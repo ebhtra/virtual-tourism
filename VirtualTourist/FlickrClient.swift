@@ -14,6 +14,7 @@ class FlickrClient: NSObject {
     static let sharedInstance = FlickrClient()
     
     let sharedContext = CoreDataStackManager.sharedInstance().managedObjectContext
+    
     // hard-coding most of the parameters since only one type of search used by app.
     // would want to abstract this for expanded app functionality
     let baseGeoString = "\(Constants.BASE_URL)?method=\(Constants.METHOD_NAME)&api_key=\(Constants.API_KEY)&format=\(Constants.DATA_FORMAT)&nojsoncallback=\(Constants.NO_JSON_CALLBACK)&extras=\(Constants.EXTRAS)&per_page=\(Constants.PHOTOS_PER_PAGE)"
@@ -25,7 +26,7 @@ class FlickrClient: NSObject {
         //cycle through available pages, avoid "page 0"
         nextPage++
         if nextPage > numPages {
-            nextPage = max(1, (nextPage+1) % (numPages+1))// +1 is to avoid %0
+            nextPage = max(1, (nextPage+1) % (numPages+1))   // +1 is to avoid %0
         }
         //make sure bbox bounds are legit
         let minLat = max(fromPin.lat - Constants.BOUNDING_BOX_HALF_HEIGHT , -90.0)

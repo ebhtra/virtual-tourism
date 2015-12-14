@@ -103,8 +103,9 @@ class PhotoCollectionVC: UIViewController, UICollectionViewDataSource, UICollect
         
         let cell = collectionView.dequeueReusableCellWithReuseIdentifier("PicCell", forIndexPath: indexPath) as! PhotoCell
         let picture = self.fetchedResultsController.objectAtIndexPath(indexPath) as! Photo
-        cell.pic.image = picture.image
         
+        cell.pic.image = picture.image
+       
         return cell
         
     }
@@ -160,9 +161,9 @@ class PhotoCollectionVC: UIViewController, UICollectionViewDataSource, UICollect
         case .Delete:
             deletedIndexPaths.append(indexPath!)
             break
-        case .Update:
-            updatedIndexPaths.append(indexPath!)
-            break
+        //case .Update:
+         //   updatedIndexPaths.append(indexPath!)
+          //  break
         default: break
         }
     }
@@ -173,7 +174,7 @@ class PhotoCollectionVC: UIViewController, UICollectionViewDataSource, UICollect
     func controllerDidChangeContent(controller: NSFetchedResultsController) {
         
         collectionView.performBatchUpdates({() -> Void in
-        
+           
             for indexPath in self.insertedIndexPaths {
                 self.collectionView.insertItemsAtIndexPaths([indexPath])
             }
@@ -182,9 +183,9 @@ class PhotoCollectionVC: UIViewController, UICollectionViewDataSource, UICollect
                 self.collectionView.deleteItemsAtIndexPaths([indexPath])
             }
             
-            for indexPath in self.updatedIndexPaths {
-                self.collectionView.reloadItemsAtIndexPaths([indexPath])
-            }
+           // for indexPath in self.updatedIndexPaths {
+           //     self.collectionView.reloadItemsAtIndexPaths([indexPath])
+            //}
             
             }, completion: nil)
     }
