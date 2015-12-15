@@ -66,18 +66,20 @@ class FlickrClient: NSObject {
                         }
                         
                         if totalPhotosVal > 0 {
-                            if let photosArray = photosDictionary["photo"] as? [[String: AnyObject]] {
-                                let _ = photosArray.map() { (dict: [String : AnyObject]) -> Photo in
-                                    let imageUrl = dict["url_m"] as! String
-                                    let newImage = UIImage(data: NSData(contentsOfURL: NSURL(string: imageUrl)!)!)
-                                    //create new Photo managed objects for each flickr photo returned
-                                    let newPhoto = Photo(image: newImage!, context: self.sharedContext)
-                                    //link the Photo to current pin for inverse relationship
-                                    newPhoto.site = fromPin
-                                    
-                                    return newPhoto
+                            self.sharedContext.performBlockAndWait() {
+                                if let photosArray = photosDictionary["photo"] as? [[String: AnyObject]] {
+                                    let _ = photosArray.map() { (dict: [String : AnyObject]) -> Photo in
+                                        let imageUrl = dict["url_m"] as! String
+                                        let newImage = UIImage(data: NSData(contentsOfURL: NSURL(string: imageUrl)!)!)
+                                        //create new Photo managed objects for each flickr photo returned
+                                        let newPhoto = Photo(image: newImage!, context: self.sharedContext)
+                                        //link the Photo to current pin for inverse relationship
+                                        newPhoto.site = fromPin
+                                        
+                                        return newPhoto
+                                    }
+                                    CoreDataStackManager.sharedInstance().saveContext()
                                 }
-                                CoreDataStackManager.sharedInstance().saveContext()
                             }
                         } 
                     }
