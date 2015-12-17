@@ -161,9 +161,9 @@ class PhotoCollectionVC: UIViewController, UICollectionViewDataSource, UICollect
         case .Delete:
             deletedIndexPaths.append(indexPath!)
             break
-        //case .Update:
-         //   updatedIndexPaths.append(indexPath!)
-          //  break
+        case .Update:
+            updatedIndexPaths.append(indexPath!)
+            break
         default: break
         }
     }
@@ -183,9 +183,9 @@ class PhotoCollectionVC: UIViewController, UICollectionViewDataSource, UICollect
                 self.collectionView.deleteItemsAtIndexPaths([indexPath])
             }
             
-           // for indexPath in self.updatedIndexPaths {
-           //     self.collectionView.reloadItemsAtIndexPaths([indexPath])
-            //}
+            for indexPath in self.updatedIndexPaths {
+                self.collectionView.reloadItemsAtIndexPaths([indexPath])
+            }
             
             }, completion: nil)
     }
@@ -193,6 +193,7 @@ class PhotoCollectionVC: UIViewController, UICollectionViewDataSource, UICollect
     func replaceAllPhotos() {
         //Delete all the currently displayed Photos and replace them with new ones from flickr
         for pic in fetchedResultsController.fetchedObjects as! [Photo] {
+            pic.image = nil
             sharedContext.deleteObject(pic)
         }
         FlickrClient.sharedInstance.getFlickrPicsFromPin(site)
@@ -206,6 +207,7 @@ class PhotoCollectionVC: UIViewController, UICollectionViewDataSource, UICollect
         }
         
         for pic in picsToDelete {
+            pic.image = nil 
             sharedContext.deleteObject(pic)
         }
         
