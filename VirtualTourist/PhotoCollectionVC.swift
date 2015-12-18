@@ -17,6 +17,8 @@ class PhotoCollectionVC: UIViewController, UICollectionViewDataSource, UICollect
     @IBOutlet weak var mapDisplay: MKMapView!
     @IBOutlet weak var noPicsLabel: UILabel!
     
+    let placeholder = UIImage(named: "hourglassIcon")
+    
     let sharedContext = CoreDataStackManager.sharedInstance().managedObjectContext
 
     var site: Pin!
@@ -103,9 +105,19 @@ class PhotoCollectionVC: UIViewController, UICollectionViewDataSource, UICollect
         
         let cell = collectionView.dequeueReusableCellWithReuseIdentifier("PicCell", forIndexPath: indexPath) as! PhotoCell
         let picture = self.fetchedResultsController.objectAtIndexPath(indexPath) as! Photo
-        
-        cell.pic.image = picture.image
-       
+        //If the Photo object for the cell already has a UIImage stored, use it,
+        //  otherwise show a placeholder while getting the image from the stored URL
+        if picture.image != nil {
+            cell.pic.image = picture.image
+        } else {
+            cell.pic.image = placeholder
+            dispatch_async(dispatch_get_main_queue()) {
+                let nsurl = NSURL(string: picture.imageURL)
+                let image = UIImage(data: NSData(contentsOfURL: nsurl!)!)
+                picture.image = image
+                cell.pic.image = image
+            }
+        }
         return cell
         
     }

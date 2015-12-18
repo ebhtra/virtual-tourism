@@ -30,7 +30,10 @@ class Photo: NSManagedObject {
         
         get {
             let fileURL = dirFilePathLocator()
-            return UIImage(contentsOfFile: fileURL.path!)!
+            if NSFileManager.defaultManager().fileExistsAtPath(fileURL.path!) {
+                return UIImage(contentsOfFile: fileURL.path!)!
+            }
+            return nil
         }
         
         set {

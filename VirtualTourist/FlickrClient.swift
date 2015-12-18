@@ -49,7 +49,6 @@ class FlickrClient: NSObject {
                     let parsedResult = try NSJSONSerialization.JSONObjectWithData(data!, options: NSJSONReadingOptions.AllowFragments) as? NSDictionary
                     
                     if let photosDictionary = parsedResult!.valueForKey("photos") as? [String:AnyObject] {
-                            
                         if let totalPages = photosDictionary["pages"] as? Int {
                             //set numPages for when user reloads photos.
                             self.numPages = totalPages
@@ -66,8 +65,7 @@ class FlickrClient: NSObject {
                         }
                         
                         if totalPhotosVal > 0 {
-                            //let numFrames = min(totalPhotosVal, Int(Constants.PHOTOS_PER_PAGE)!)
-                            
+                            // make sure to mess with the context on the main queue, where it was created
                             self.sharedContext.performBlockAndWait() {
                                 if let photosArray = photosDictionary["photo"] as? [[String: AnyObject]] {
                                     let _ = photosArray.map() { (dict: [String : AnyObject]) -> Photo in
@@ -76,8 +74,6 @@ class FlickrClient: NSObject {
                                         let newPhoto = Photo(imageUrl: imageUrl, context: self.sharedContext)
                                         //link the Photo to current pin for inverse relationship
                                         newPhoto.site = fromPin
-                                        //store the image in the new Photo
-                                        newPhoto.image = UIImage(data: NSData(contentsOfURL: NSURL(string: imageUrl)!)!)
                                         
                                         return newPhoto
                                     }
