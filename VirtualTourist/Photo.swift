@@ -27,7 +27,7 @@ class Photo: NSManagedObject {
     }
     
     var image: UIImage? {
-        
+        // return a previously stored image, if exists, otherwise nil
         get {
             let fileURL = dirFilePathLocator()
             if NSFileManager.defaultManager().fileExistsAtPath(fileURL.path!) {
@@ -35,7 +35,8 @@ class Photo: NSManagedObject {
             }
             return nil
         }
-        
+        // When an Photo's image is set to nil, delete it from Docs directory.
+        // Otherwise store the new image as a JPEG in Docs directory.
         set {
             if newValue == nil {
                 do {
@@ -51,6 +52,7 @@ class Photo: NSManagedObject {
         }
         
     }
+    // helper function to make a path to the Docs directory using this Photo's imageURL property as ID
     func dirFilePathLocator() -> NSURL {
         let fileName = NSString(string: imageURL).lastPathComponent
         let dirPath = NSSearchPathForDirectoriesInDomains(.DocumentDirectory, .UserDomainMask, true)[0]

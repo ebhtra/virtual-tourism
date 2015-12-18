@@ -34,7 +34,6 @@ class PhotoCollectionVC: UIViewController, UICollectionViewDataSource, UICollect
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        print("the pin has \(site.pics.count) photos")
         // Deal with the zero-pic situation
         if site.pics.isEmpty {
             noPicsLabel.hidden = false
@@ -144,15 +143,18 @@ class PhotoCollectionVC: UIViewController, UICollectionViewDataSource, UICollect
         updateBottomButton()
         
     }
+    // helper func to toggle a cell's appearance
     func selectPic(pic: PhotoCell) {
         pic.pic.alpha = 0.33
         pic.backgroundColor = UIColor.yellowColor()
         
     }
+    // helper func to toggle a cell's appearance
     func deselectPic(pic: PhotoCell) {
         pic.pic.alpha = 1.0
         pic.backgroundColor = UIColor.blackColor()
     }
+    // helper func to toggle the bottom button
     func updateBottomButton() {
         if selectedIndexes.isEmpty {
             bottomButton.title = "Get New Photos"
