@@ -42,7 +42,7 @@ class PhotoCollectionVC: UIViewController, UICollectionViewDataSource, UICollect
         }
         // Place the current pin on the small map above the Photo collection
         mapDisplay.addAnnotation(site)
-        mapDisplay.setRegion(MKCoordinateRegion(center: site.coordinate, span: MKCoordinateSpanMake(0.5, 0.5)), animated: true)
+        mapDisplay.setRegion(MKCoordinateRegion(center: site.coordinate, span: MKCoordinateSpanMake(0.2, 0.5)), animated: true)
         
         fetchedResultsController.delegate = self
         collectionView.delegate = self
@@ -105,6 +105,11 @@ class PhotoCollectionVC: UIViewController, UICollectionViewDataSource, UICollect
         
         let cell = collectionView.dequeueReusableCellWithReuseIdentifier("PicCell", forIndexPath: indexPath) as! PhotoCell
         let picture = self.fetchedResultsController.objectAtIndexPath(indexPath) as! Photo
+        if let _ = selectedIndexes.indexOf(indexPath) {
+            selectPic(cell)
+        } else {
+            deselectPic(cell)
+        }
         //If the Photo object for the cell already has a UIImage stored, use it,
         //  otherwise show a placeholder while getting the image from the stored URL
         if picture.image != nil {
@@ -130,14 +135,23 @@ class PhotoCollectionVC: UIViewController, UICollectionViewDataSource, UICollect
         // Also it will toggle its alpha accordingly.
         if let index = selectedIndexes.indexOf(indexPath) {
             selectedIndexes.removeAtIndex(index)
-            cell.alpha = 1.0
+            deselectPic(cell)
         } else {
             selectedIndexes.append(indexPath)
-            cell.alpha = 0.4
+            selectPic(cell)
         }
 
         updateBottomButton()
         
+    }
+    func selectPic(pic: PhotoCell) {
+        pic.pic.alpha = 0.33
+        pic.backgroundColor = UIColor.yellowColor()
+        
+    }
+    func deselectPic(pic: PhotoCell) {
+        pic.pic.alpha = 1.0
+        pic.backgroundColor = UIColor.blackColor()
     }
     func updateBottomButton() {
         if selectedIndexes.isEmpty {

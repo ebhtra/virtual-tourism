@@ -69,7 +69,7 @@ class FlickrClient: NSObject {
                             self.sharedContext.performBlockAndWait() {
                                 if let photosArray = photosDictionary["photo"] as? [[String: AnyObject]] {
                                     let _ = photosArray.map() { (dict: [String : AnyObject]) -> Photo in
-                                        let imageUrl = dict["url_m"] as! String
+                                        let imageUrl = dict[Constants.EXTRAS] as! String
                                         //create new Photo managed objects for each flickr photo returned
                                         let newPhoto = Photo(imageUrl: imageUrl, context: self.sharedContext)
                                         //link the Photo to current pin for inverse relationship
