@@ -115,11 +115,19 @@ class PhotoCollectionVC: UIViewController, UICollectionViewDataSource, UICollect
             cell.pic.image = picture.image
         } else {
             cell.pic.image = placeholder
+            let activityIndicator = UIActivityIndicatorView(activityIndicatorStyle: .WhiteLarge)
+            cell.addSubview(activityIndicator)
+            activityIndicator.color = UIColor.yellowColor()
+            activityIndicator.frame = cell.bounds
+            activityIndicator.startAnimating()
+            
             dispatch_async(dispatch_get_main_queue()) {
                 let nsurl = NSURL(string: picture.imageURL)
                 let image = UIImage(data: NSData(contentsOfURL: nsurl!)!)
                 picture.image = image
+                activityIndicator.removeFromSuperview()
                 cell.pic.image = image
+                
             }
         }
         return cell
