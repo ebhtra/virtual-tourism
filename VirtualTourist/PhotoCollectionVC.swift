@@ -86,6 +86,7 @@ class PhotoCollectionVC: UIViewController, UICollectionViewDataSource, UICollect
             replaceAllPhotos()
         } else {
             deleteSelectedPhotos()
+            CoreDataStackManager.sharedInstance().saveContext()
         }
     }
     
@@ -248,7 +249,6 @@ class PhotoCollectionVC: UIViewController, UICollectionViewDataSource, UICollect
             pic.image = nil 
             sharedContext.deleteObject(pic)
         }
-        CoreDataStackManager.sharedInstance().saveContext()
         
         selectedIndexes = [NSIndexPath]()
         //if all pics were deleted, enable getting more
