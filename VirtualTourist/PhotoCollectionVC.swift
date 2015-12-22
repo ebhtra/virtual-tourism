@@ -232,6 +232,8 @@ class PhotoCollectionVC: UIViewController, UICollectionViewDataSource, UICollect
             pic.image = nil
             sharedContext.deleteObject(pic)
         }
+        CoreDataStackManager.sharedInstance().saveContext()
+        
         FlickrClient.sharedInstance.getFlickrPicsFromPin(site)
     }
     
@@ -246,8 +248,13 @@ class PhotoCollectionVC: UIViewController, UICollectionViewDataSource, UICollect
             pic.image = nil 
             sharedContext.deleteObject(pic)
         }
+        CoreDataStackManager.sharedInstance().saveContext()
         
         selectedIndexes = [NSIndexPath]()
+        //if all pics were deleted, enable getting more
+        if site.pics.isEmpty {
+            bottomButton.enabled = true
+        }
         //toggle bottom button back to "replace all" state
         updateBottomButton()
     }

@@ -31,6 +31,7 @@ class Photo: NSManagedObject {
         get {
             let fileURL = dirFilePathLocator()
             if NSFileManager.defaultManager().fileExistsAtPath(fileURL.path!) {
+                
                 return UIImage(contentsOfFile: fileURL.path!)!
             }
             return nil
@@ -42,7 +43,6 @@ class Photo: NSManagedObject {
                 do {
                     try NSFileManager.defaultManager().removeItemAtPath(dirFilePathLocator().path!)
                 } catch {
-                    print("unable to remove file from documents directory: \(error)")
                 }
                 return
             } else {
@@ -51,6 +51,10 @@ class Photo: NSManagedObject {
             }
         }
         
+    }
+    // make sure photo is removed from Documents directory before deletion
+    override func prepareForDeletion() {
+        image = nil
     }
     // helper function to make a path to the Docs directory using this Photo's imageURL property as ID
     func dirFilePathLocator() -> NSURL {
