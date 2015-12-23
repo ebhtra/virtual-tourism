@@ -122,13 +122,19 @@ class PhotoCollectionVC: UIViewController, UICollectionViewDataSource, UICollect
             activityIndicator.frame = cell.bounds
             activityIndicator.startAnimating()
             
-            dispatch_async(dispatch_get_main_queue()) {
-                let nsurl = NSURL(string: picture.imageURL)
-                let image = UIImage(data: NSData(contentsOfURL: nsurl!)!)
-                picture.image = image
-                activityIndicator.removeFromSuperview()
-                cell.pic.image = image
-                
+            let _ = taskForImage(picture.imageURL) { data, error in
+                if let _ = error{
+                    // show the error photo
+                    picture.image = UIImage(named: "image-2")
+                } else {
+                    let image = UIImage(data: data!)
+                    //need main queue for core data thread safety
+                    dispatch_async(dispatch_get_main_queue()) {
+                        picture.image = image
+                        cell.pic.image = image
+                        activityIndicator.removeFromSuperview()
+                    }
+                }
             }
         }
         return cell
@@ -257,6 +263,25 @@ class PhotoCollectionVC: UIViewController, UICollectionViewDataSource, UICollect
         }
         //toggle bottom button back to "replace all" state
         updateBottomButton()
+    }
+    
+    // data task for making UIImages from stored URL's
+    func taskForImage(filePath: String, completionHandler: (imageData: NSData?, error: NSError?) ->  Void) -> NSURLSessionTask {
+    
+        let request = NSURLRequest(URL: NSURL(string: filePath)!)
+        let task = NSURLSession.sharedSession().dataTaskWithRequest(request) {data, response, downloadError in
+            
+            if let error = downloadError {
+                print(error.localizedDescription)
+                completionHandler(imageData: nil, error: error)
+            }  else {
+                completionHandler(imageData: data, error: nil)
+            }
+        }
+        
+        task.resume()
+        
+        return task
     }
     
 }
