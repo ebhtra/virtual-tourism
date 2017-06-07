@@ -24,20 +24,20 @@ class PhotoCollectionVC: UIViewController, UICollectionViewDataSource, UICollect
     var site: Pin!
     
     // A staging area for indices of Photos before they are deleted
-    var selectedIndexes = [NSIndexPath]()
+    var selectedIndexes = [IndexPath]()
     
     // A staging area for indices of Photos before the batch update
-    var insertedIndexPaths: [NSIndexPath]!
-    var deletedIndexPaths: [NSIndexPath]!
-    var updatedIndexPaths: [NSIndexPath]!
+    var insertedIndexPaths: [IndexPath]!
+    var deletedIndexPaths: [IndexPath]!
+    var updatedIndexPaths: [IndexPath]!
     
     override func viewDidLoad() {
         super.viewDidLoad()
         
         // Deal with the zero-pic situation
         if site.pics.isEmpty {
-            noPicsLabel.hidden = false
-            bottomButton.enabled = false
+            noPicsLabel.isHidden = false
+            bottomButton.isEnabled = false
         }
         // Place the current pin on the small map above the Photo collection
         mapDisplay.addAnnotation(site)
@@ -54,8 +54,8 @@ class PhotoCollectionVC: UIViewController, UICollectionViewDataSource, UICollect
         }
     }
     // This controller will control Photos in this managed Context whose related Pin is the current one
-    lazy var fetchedResultsController: NSFetchedResultsController = {
-        let fetchRequest = NSFetchRequest(entityName: "Photo")
+    lazy var fetchedResultsController: NSFetchedResultsController<NSFetchRequestResult> = {
+        let fetchRequest = NSFetchRequest<NSFetchRequestResult>(entityName: "Photo")
         fetchRequest.sortDescriptors = []
         //get the photos whose related Pin matches this one
         fetchRequest.predicate = NSPredicate(format: "site == %@", self.site)
@@ -80,7 +80,7 @@ class PhotoCollectionVC: UIViewController, UICollectionViewDataSource, UICollect
         collectionView.collectionViewLayout = layout
     }
 
-    @IBAction func bottomButtonClicked(sender: AnyObject) {
+    @IBAction func bottomButtonClicked(_ sender: AnyObject) {
         //either add photos to the for-deletion list or replace them all with a new call to flickr
         if selectedIndexes.isEmpty {
             replaceAllPhotos()
@@ -92,20 +92,20 @@ class PhotoCollectionVC: UIViewController, UICollectionViewDataSource, UICollect
     
     // MARK: - UICollectionView DataSource and Delegate methods
     
-    func numberOfSectionsInCollectionView(collectionView: UICollectionView) -> Int {
+    func numberOfSections(in collectionView: UICollectionView) -> Int {
         return fetchedResultsController.sections?.count ?? 0
     }
     
-    func collectionView(collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
+    func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         let sectionInfo = self.fetchedResultsController.sections![section]
         return sectionInfo.numberOfObjects
     }
     
-    func collectionView(collectionView: UICollectionView, cellForItemAtIndexPath indexPath: NSIndexPath) -> UICollectionViewCell {
+    func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         
-        let cell = collectionView.dequeueReusableCellWithReuseIdentifier("PicCell", forIndexPath: indexPath) as! PhotoCell
-        let picture = self.fetchedResultsController.objectAtIndexPath(indexPath) as! Photo
-        if let _ = selectedIndexes.indexOf(indexPath) {
+        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "PicCell", for: indexPath) as! PhotoCell
+        let picture = self.fetchedResultsController.object(at: indexPath) as! Photo
+        if let _ = selectedIndexes.index(of: indexPath) {
             selectPic(cell)
         } else {
             deselectPic(cell)
@@ -116,9 +116,9 @@ class PhotoCollectionVC: UIViewController, UICollectionViewDataSource, UICollect
             cell.pic.image = picture.image
         } else {
             cell.pic.image = placeholder
-            let activityIndicator = UIActivityIndicatorView(activityIndicatorStyle: .WhiteLarge)
+            let activityIndicator = UIActivityIndicatorView(activityIndicatorStyle: .whiteLarge)
             cell.addSubview(activityIndicator)
-            activityIndicator.color = UIColor.yellowColor()
+            activityIndicator.color = UIColor.yellow
             activityIndicator.frame = cell.bounds
             activityIndicator.startAnimating()
             
@@ -129,7 +129,7 @@ class PhotoCollectionVC: UIViewController, UICollectionViewDataSource, UICollect
                 } else {
                     let image = UIImage(data: data!)
                     //need main queue for core data thread safety
-                    dispatch_async(dispatch_get_main_queue()) {
+                    DispatchQueue.main.async {
                         picture.image = image
                         cell.pic.image = image
                         activityIndicator.removeFromSuperview()
@@ -141,14 +141,14 @@ class PhotoCollectionVC: UIViewController, UICollectionViewDataSource, UICollect
         
     }
     
-    func collectionView(collectionView: UICollectionView, didSelectItemAtIndexPath indexPath: NSIndexPath) {
+    func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         
-        let cell = collectionView.cellForItemAtIndexPath(indexPath) as! PhotoCell
+        let cell = collectionView.cellForItem(at: indexPath) as! PhotoCell
         
         // When a cell is tapped this method will toggle its presence in the selectedIndexes array.
         // Also it will toggle its alpha accordingly.
-        if let index = selectedIndexes.indexOf(indexPath) {
-            selectedIndexes.removeAtIndex(index)
+        if let index = selectedIndexes.index(of: indexPath) {
+            selectedIndexes.remove(at: index)
             deselectPic(cell)
         } else {
             selectedIndexes.append(indexPath)
@@ -159,15 +159,15 @@ class PhotoCollectionVC: UIViewController, UICollectionViewDataSource, UICollect
         
     }
     // helper func to toggle a cell's appearance
-    func selectPic(pic: PhotoCell) {
+    func selectPic(_ pic: PhotoCell) {
         pic.pic.alpha = 0.33
-        pic.backgroundColor = UIColor.yellowColor()
+        pic.backgroundColor = UIColor.yellow
         
     }
     // helper func to toggle a cell's appearance
-    func deselectPic(pic: PhotoCell) {
+    func deselectPic(_ pic: PhotoCell) {
         pic.pic.alpha = 1.0
-        pic.backgroundColor = UIColor.blackColor()
+        pic.backgroundColor = UIColor.black
     }
     // helper func to toggle the bottom button
     func updateBottomButton() {
@@ -184,27 +184,27 @@ class PhotoCollectionVC: UIViewController, UICollectionViewDataSource, UICollect
     
     // Whenever changes are made to Core Data the following three methods are invoked. This first method is used to create
     // three fresh arrays to record the index paths that will be changed.
-    func controllerWillChangeContent(controller: NSFetchedResultsController) {
+    func controllerWillChangeContent(_ controller: NSFetchedResultsController<NSFetchRequestResult>) {
         // We are about to handle some new changes. Start out with empty arrays for each change type
-        insertedIndexPaths = [NSIndexPath]()
-        deletedIndexPaths = [NSIndexPath]()
-        updatedIndexPaths = [NSIndexPath]()
+        insertedIndexPaths = [IndexPath]()
+        deletedIndexPaths = [IndexPath]()
+        updatedIndexPaths = [IndexPath]()
 
     }
     
     // The second method may be called multiple times, once for each Photo object that is added, deleted, or changed.
     // It will store index paths into the three arrays.
-    func controller(controller: NSFetchedResultsController, didChangeObject anObject: AnyObject, atIndexPath indexPath: NSIndexPath?, forChangeType type: NSFetchedResultsChangeType, newIndexPath: NSIndexPath?) {
+    func controller(_ controller: NSFetchedResultsController<NSFetchRequestResult>, didChange anObject: Any, at indexPath: IndexPath?, for type: NSFetchedResultsChangeType, newIndexPath: IndexPath?) {
         
         switch type{
             
-        case .Insert:
+        case .insert:
             insertedIndexPaths.append(newIndexPath!)
             break
-        case .Delete:
+        case .delete:
             deletedIndexPaths.append(indexPath!)
             break
-        case .Update:
+        case .update:
             updatedIndexPaths.append(indexPath!)
             break
         default: break
@@ -214,20 +214,20 @@ class PhotoCollectionVC: UIViewController, UICollectionViewDataSource, UICollect
     // This method is invoked after all of the changes in the current batch have been collected
     // into the three index path arrays (insert, delete, and update). We now need to loop through the
     // arrays and perform the changes.
-    func controllerDidChangeContent(controller: NSFetchedResultsController) {
+    func controllerDidChangeContent(_ controller: NSFetchedResultsController<NSFetchRequestResult>) {
         
         collectionView.performBatchUpdates({() -> Void in
            
             for indexPath in self.insertedIndexPaths {
-                self.collectionView.insertItemsAtIndexPaths([indexPath])
+                self.collectionView.insertItems(at: [indexPath])
             }
             
             for indexPath in self.deletedIndexPaths {
-                self.collectionView.deleteItemsAtIndexPaths([indexPath])
+                self.collectionView.deleteItems(at: [indexPath])
             }
             
             for indexPath in self.updatedIndexPaths {
-                self.collectionView.reloadItemsAtIndexPaths([indexPath])
+                self.collectionView.reloadItems(at: [indexPath])
             }
             
             }, completion: nil)
@@ -237,7 +237,7 @@ class PhotoCollectionVC: UIViewController, UICollectionViewDataSource, UICollect
         //Delete all the currently displayed Photos and replace them with new ones from flickr
         for pic in fetchedResultsController.fetchedObjects as! [Photo] {
             pic.image = nil
-            sharedContext.deleteObject(pic)
+            sharedContext.delete(pic)
         }
         CoreDataStackManager.sharedInstance().saveContext()
         
@@ -248,36 +248,36 @@ class PhotoCollectionVC: UIViewController, UICollectionViewDataSource, UICollect
         var picsToDelete = [Photo]()
         
         for indexPath in selectedIndexes {
-            picsToDelete.append(fetchedResultsController.objectAtIndexPath(indexPath) as! Photo)
+            picsToDelete.append(fetchedResultsController.object(at: indexPath) as! Photo)
         }
         
         for pic in picsToDelete {
             pic.image = nil 
-            sharedContext.deleteObject(pic)
+            sharedContext.delete(pic)
         }
         
-        selectedIndexes = [NSIndexPath]()
+        selectedIndexes = [IndexPath]()
         //if all pics were deleted, enable getting more
         if site.pics.isEmpty {
-            bottomButton.enabled = true
+            bottomButton.isEnabled = true
         }
         //toggle bottom button back to "replace all" state
         updateBottomButton()
     }
     
     // data task for making UIImages from stored URL's
-    func taskForImage(filePath: String, completionHandler: (imageData: NSData?, error: NSError?) ->  Void) -> NSURLSessionTask {
+    func taskForImage(_ filePath: String, completionHandler: @escaping (_ imageData: Data?, _ error: NSError?) ->  Void) -> URLSessionTask {
     
-        let request = NSURLRequest(URL: NSURL(string: filePath)!)
-        let task = NSURLSession.sharedSession().dataTaskWithRequest(request) {data, response, downloadError in
+        let request = URLRequest(url: URL(string: filePath)!)
+        let task = URLSession.shared.dataTask(with: request, completionHandler: {data, response, downloadError in
             
             if let error = downloadError {
                 print(error.localizedDescription)
-                completionHandler(imageData: nil, error: error)
+                completionHandler(nil, error as NSError?)
             }  else {
-                completionHandler(imageData: data, error: nil)
+                completionHandler(data, nil)
             }
-        }
+        }) 
         
         task.resume()
         

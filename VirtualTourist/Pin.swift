@@ -23,23 +23,23 @@ class Pin: NSManagedObject, MKAnnotation {
         }
     }
     
-    override init(entity: NSEntityDescription, insertIntoManagedObjectContext context: NSManagedObjectContext?) {
-        super.init(entity: entity, insertIntoManagedObjectContext: context)
+    override init(entity: NSEntityDescription, insertInto context: NSManagedObjectContext?) {
+        super.init(entity: entity, insertInto: context)
     }
     
     init(lat: Double, lon: Double, context: NSManagedObjectContext) {
-        let entity = NSEntityDescription.entityForName("Pin", inManagedObjectContext: context)
-        super.init(entity: entity!, insertIntoManagedObjectContext: context)
+        let entity = NSEntityDescription.entity(forEntityName: "Pin", in: context)
+        super.init(entity: entity!, insertInto: context)
         self.lat = lat
         self.lon = lon
     }
     
-    func setCoordinate(toPoint: CLLocationCoordinate2D) {
+    func setCoordinate(_ toPoint: CLLocationCoordinate2D) {
         //To comply with KVO in order to drag a pin before dropping it
-        willChangeValueForKey("coordinate")
+        willChangeValue(forKey: "coordinate")
         self.lat = toPoint.latitude
         self.lon = toPoint.longitude
-        didChangeValueForKey("coordinate")
+        didChangeValue(forKey: "coordinate")
     }
     
     

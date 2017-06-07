@@ -24,8 +24,8 @@ class ViewController: UIViewController, MKMapViewDelegate, NSFetchedResultsContr
     var isEditingPins = false
     var editButton = UIBarButtonItem()
     
-    lazy var fetchedResultsController: NSFetchedResultsController = {
-        let fetchRequest = NSFetchRequest(entityName: "Pin")
+    lazy var fetchedResultsController: NSFetchedResultsController<NSFetchRequestResult> = {
+        let fetchRequest = NSFetchRequest<NSFetchRequestResult>(entityName: "Pin")
         fetchRequest.sortDescriptors = [NSSortDescriptor(key: "lat", ascending: true)]
         let fetchedResultsController = NSFetchedResultsController(fetchRequest: fetchRequest,
             managedObjectContext: self.sharedContext,
@@ -43,13 +43,13 @@ class ViewController: UIViewController, MKMapViewDelegate, NSFetchedResultsContr
         globalMap.delegate = self
         
         longPress.minimumPressDuration = 0.25
-        longPress.addTarget(self, action: Selector("placePin:"))
+        longPress.addTarget(self, action: #selector(ViewController.placePin(_:)))
         view.addGestureRecognizer(longPress)
         
-        editButton = UIBarButtonItem(title: "Edit", style: .Plain, target: self, action: Selector("selectEditMode:"))
+        editButton = UIBarButtonItem(title: "Edit", style: .plain, target: self, action: #selector(ViewController.selectEditMode(_:)))
         navigationItem.rightBarButtonItem = editButton
         
-        deletePinLabel.hidden = true
+        deletePinLabel.isHidden = true
         
         //get and display all stored Pins
         do {
@@ -61,16 +61,16 @@ class ViewController: UIViewController, MKMapViewDelegate, NSFetchedResultsContr
         }
     }
     
-    override func viewWillDisappear(animated: Bool) {
+    override func viewWillDisappear(_ animated: Bool) {
         //keep current region and zoom level
         saveMapRegion()
     }
     
-    func placePin(recognizer: UIGestureRecognizer) {
+    func placePin(_ recognizer: UIGestureRecognizer) {
         switch recognizer.state {
-        case .Began: dropPin(recognizer.locationInView(globalMap))
-        case .Changed: updatePinLoc(recognizer.locationInView(globalMap))
-        case .Ended: storePin()
+        case .began: dropPin(recognizer.location(in: globalMap))
+        case .changed: updatePinLoc(recognizer.location(in: globalMap))
+        case .ended: storePin()
         default: break
         }
     }
@@ -88,16 +88,16 @@ class ViewController: UIViewController, MKMapViewDelegate, NSFetchedResultsContr
         return pinView
     }
     */
-    func dropPin(atPoint: CGPoint) {
+    func dropPin(_ atPoint: CGPoint) {
         //after long touch, create new Pin object and store it in Context
-        let geoPoint = globalMap.convertPoint(atPoint, toCoordinateFromView: globalMap)
+        let geoPoint = globalMap.convert(atPoint, toCoordinateFrom: globalMap)
         newPin = Pin(lat: geoPoint.latitude, lon: geoPoint.longitude, context: sharedContext)
         globalMap.addAnnotation(newPin!)
     }
     
-    func updatePinLoc(toPoint: CGPoint) {
+    func updatePinLoc(_ toPoint: CGPoint) {
         //during dragging, update new Pin's location
-        let geoPoint = globalMap.convertPoint(toPoint, toCoordinateFromView: globalMap)
+        let geoPoint = globalMap.convert(toPoint, toCoordinateFrom: globalMap)
         newPin!.setCoordinate(geoPoint)
     }
 
@@ -107,36 +107,36 @@ class ViewController: UIViewController, MKMapViewDelegate, NSFetchedResultsContr
         FlickrClient.sharedInstance.getFlickrPicsFromPin(newPin!)
     }
     
-    func mapView(mapView: MKMapView, didSelectAnnotationView view: MKAnnotationView) {
+    func mapView(_ mapView: MKMapView, didSelect view: MKAnnotationView) {
         let spot = view.annotation as! Pin
         //unless editing (removing) pins, segue to photo display scene for the tapped pin
         if !isEditingPins {
             // first center the map on the selected pin for user's reference upon return
             globalMap.centerCoordinate = spot.coordinate
-            let nextVC = storyboard!.instantiateViewControllerWithIdentifier("PhotoAlbum") as! PhotoCollectionVC
+            let nextVC = storyboard!.instantiateViewController(withIdentifier: "PhotoAlbum") as! PhotoCollectionVC
             nextVC.site = spot
             mapView.deselectAnnotation(spot, animated: false)
             navigationController!.pushViewController(nextVC, animated: true)
         } else {
             globalMap.removeAnnotation(spot)
-            sharedContext.deleteObject(spot)
+            sharedContext.delete(spot)
             //persist the deletion of the managed object
             CoreDataStackManager.sharedInstance().saveContext()
         }
         
     }
-    func selectEditMode(button: UIBarButtonItem) {
+    func selectEditMode(_ button: UIBarButtonItem) {
         //toggle editing state and update view accordingly
         if isEditingPins {
             editButton.title = "Edit"
             isEditingPins = false
             self.view.frame.origin.y = 0
-            deletePinLabel.hidden = true
+            deletePinLabel.isHidden = true
         } else {
             editButton.title = "Done"
             isEditingPins = true
             self.view.frame.origin.y -= deletePinLabel.frame.height
-            deletePinLabel.hidden = false
+            deletePinLabel.isHidden = false
         }
     }
     
@@ -145,9 +145,9 @@ class ViewController: UIViewController, MKMapViewDelegate, NSFetchedResultsContr
     // This code is copied from Udacity's MemoryMap app in the ios-persistence course
     
     var filePath : String {
-        let manager = NSFileManager.defaultManager()
-        let url = manager.URLsForDirectory(.DocumentDirectory, inDomains: .UserDomainMask).first
-        return url!.URLByAppendingPathComponent("mapRegionArchive").path!
+        let manager = FileManager.default
+        let url = manager.urls(for: .documentDirectory, in: .userDomainMask).first
+        return url!.appendingPathComponent("mapRegionArchive").path
     }
     
     func saveMapRegion() {
@@ -167,11 +167,11 @@ class ViewController: UIViewController, MKMapViewDelegate, NSFetchedResultsContr
         NSKeyedArchiver.archiveRootObject(dictionary, toFile: filePath)
     }
     
-    func restoreMapRegion(animated: Bool) {
+    func restoreMapRegion(_ animated: Bool) {
         
         // if we can unarchive a dictionary, we will use it to set the map back to its
         // previous center and span
-        if let regionDictionary = NSKeyedUnarchiver.unarchiveObjectWithFile(filePath) as? [String : AnyObject] {
+        if let regionDictionary = NSKeyedUnarchiver.unarchiveObject(withFile: filePath) as? [String : AnyObject] {
             
             let longitude = regionDictionary["longitude"] as! CLLocationDegrees
             let latitude = regionDictionary["latitude"] as! CLLocationDegrees

@@ -22,9 +22,9 @@ class FlickrClient: NSObject {
     var nextPage = 0
     var numPages = 0
     
-    func getFlickrPicsFromPin(fromPin: Pin) {
+    func getFlickrPicsFromPin(_ fromPin: Pin) {
         //cycle through available pages, avoid "page 0"
-        nextPage++
+        nextPage += 1
         if nextPage > numPages {
             nextPage = max(1, (nextPage+1) % (numPages+1))   // +1 is to avoid %0
         }
@@ -34,21 +34,21 @@ class FlickrClient: NSObject {
         let maxLat = min(fromPin.lat + Constants.BOUNDING_BOX_HALF_HEIGHT, 90.0)
         let maxLon = min(fromPin.lon + Constants.BOUNDING_BOX_HALF_WIDTH, 180.0)
         //build the rest of the request based on pin location and page number
-        let session = NSURLSession.sharedSession()
+        let session = URLSession.shared
         let bbox = "&bbox=\(minLon)%2C\(minLat)%2C\(maxLon)%2C\(maxLat)"
         let urlString = baseGeoString + bbox + "&page=\(nextPage)"
-        let url = NSURL(string: urlString)!
-        let request = NSURLRequest(URL: url)
+        let url = URL(string: urlString)!
+        let request = URLRequest(url: url)
         
-        let task = session.dataTaskWithRequest(request) {data, response, downloadError in
+        let task = session.dataTask(with: request, completionHandler: {data, response, downloadError in
             if let error = downloadError {
                 //fail silently from user's perspective
                 print("Could not complete the request \(error)")
             } else {
                 do {
-                    let parsedResult = try NSJSONSerialization.JSONObjectWithData(data!, options: NSJSONReadingOptions.AllowFragments) as? NSDictionary
+                    let parsedResult = try JSONSerialization.jsonObject(with: data!, options: JSONSerialization.ReadingOptions.allowFragments) as? NSDictionary
                     
-                    if let photosDictionary = parsedResult!.valueForKey("photos") as? [String:AnyObject] {
+                    if let photosDictionary = parsedResult!.value(forKey: "photos") as? [String:AnyObject] {
                         if let totalPages = photosDictionary["pages"] as? Int {
                             //set numPages for when user reloads photos.
                             self.numPages = totalPages
@@ -66,7 +66,7 @@ class FlickrClient: NSObject {
                         
                         if totalPhotosVal > 0 {
                             // make sure to mess with the context on the main queue, where it was created
-                            self.sharedContext.performBlockAndWait() {
+                            self.sharedContext.performAndWait() {
                                 if let photosArray = photosDictionary["photo"] as? [[String: AnyObject]] {
                                     let _ = photosArray.map() { (dict: [String : AnyObject]) -> Photo in
                                         let imageUrl = dict[Constants.EXTRAS] as! String
@@ -87,7 +87,7 @@ class FlickrClient: NSObject {
                     print(error)
                 }
             }
-        }
+        }) 
         task.resume()
         
     }
